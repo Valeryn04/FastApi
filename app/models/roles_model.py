@@ -4,7 +4,7 @@ from datetime import datetime
 
 class RolBase(BaseModel):
     id_rol: Optional[int] = None
-    nombre: str
+    nombre_rol: Optional[str] = None
     descripcion: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
