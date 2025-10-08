@@ -2,17 +2,20 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 from datetime import date, datetime
 
-
 class UsuarioBase(BaseModel):
+    id_usuario: Optional[int] = None
     usuario: str
     contrasena: str
-    nombreCompleto: str
-    tipoDocumento: Optional[str] = None
-    numeroDocumento: Optional[str] = None
-    fechaNacimiento: Optional[date] = None
-    sexo: Optional[str] = None   # varchar(1), ej: 'M', 'F', 'O'
+    nombre: str
+    apellido: str
+    tipo_documento: str
+    numero_documento: str
+    fecha_nacimiento: date
+    sexo: str
     telefono: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[str] = None
     direccion: Optional[str] = None
-    idRol: int
-    estado: Optional[int] = 1 # 1 = Activo | 0 = Inactivo
+    estado: Optional[bool] = True
+    id_rol: int
+    create_date: Optional[datetime] = None
+    update_date: Optional[datetime] = None

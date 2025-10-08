@@ -7,10 +7,8 @@ from config.db_config import get_db_connection
 app = FastAPI()
 
 origins = [
-    "http://localhost"
-    #"http://localhost:8080",
+    "http://localhost:8000"
 ]
-
 
 app.add_middleware(
     CORSMiddleware,
