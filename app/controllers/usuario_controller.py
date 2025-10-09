@@ -103,8 +103,6 @@ class UsuarioController:
             finally:
                 conn.close()
 
-
-
     def update(self, id_usuario: int, usuario: UsuarioUpdate):
         try:
             conn = get_db_connection()
@@ -169,7 +167,6 @@ class UsuarioController:
             raise HTTPException(status_code=500, detail=str(err))
         finally:
             conn.close()
-
 
     def cambiar_estado(self, id_usuario: int, estado: bool):
         try:

@@ -8,3 +8,10 @@ class AtributoBase(BaseModel):
     descripcion: Optional[str] = None
     create_date: Optional[datetime] = None
     update_date: Optional[datetime] = None
+
+class AtributoUpdate(BaseModel):
+    id_atributo: Optional[int] = None
+    nombre: Optional[str] = None
+    descripcion: Optional[str] = None
+    create_date: Optional[datetime] = None
+    update_date: Optional[datetime] = None
