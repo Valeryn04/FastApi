@@ -11,4 +11,8 @@ class UsuarioAtributoBase(UsuarioAtributoCreate):
     id_usuario_atributo: Optional[int] = None
     id_usuario: Optional[int] = None
     create_date: Optional[datetime] = None
+<<<<<<< HEAD
     update_date: Optional[datetime] = None
+=======
+    update_date: Optional[datetime] = None
+>>>>>>> 050312b20dfcd42825816cc663fd6c30070fd60a

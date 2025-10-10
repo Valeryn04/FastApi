@@ -7,3 +7,4 @@ def get_db_connection():
         password="",
         database="clinica_proyecto"
     )
+import mysql.connector

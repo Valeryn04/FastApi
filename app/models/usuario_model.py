@@ -49,4 +49,8 @@ class UsuarioCreateWithAtributos(BaseModel):
     email: str
     direccion: str
     id_rol: int
+<<<<<<< HEAD
     atributos: List[UsuarioAtributoCreate]
+=======
+    atributos: List[UsuarioAtributoCreate]
+>>>>>>> 050312b20dfcd42825816cc663fd6c30070fd60a

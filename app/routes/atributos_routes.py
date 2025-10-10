@@ -2,6 +2,7 @@ from fastapi import APIRouter, Body
 from models.atributo_model import AtributoBase, AtributoUpdate
 from controllers.atributo_controller import AtributoController
 
+
 router = APIRouter()
 atributo_controller = AtributoController()
 
@@ -34,9 +35,3 @@ async def update_atributo(atributo_id: int, atributo: AtributoUpdate):
 async def delete_atributo(atributo_id: int):
     rpta = atributo_controller.eliminar(atributo_id)
     return rpta
-
-# Ruta para obtener los atributos por rol
-@router.get("/atributos/rol/{rol_id}")
-def obtener_atributos_por_rol(rol_id: int):
-    atributo_controller = AtributoController()
-    return atributo_controller.get_atributos_por_rol(rol_id)
