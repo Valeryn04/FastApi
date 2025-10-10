@@ -2,7 +2,7 @@ import mysql.connector
 import re
 from fastapi import HTTPException
 from config.db_config import get_db_connection
-from models.usuario_model import UsuarioBase, UsuarioUpdate
+from models.usuario_model import UsuarioBase, UsuarioUpdate, UsuarioCreateWithAtributos
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 import bcrypt
@@ -39,9 +39,10 @@ class UsuarioController:
         finally:
             conn.close()
 
-    def create(self, usuario: UsuarioBase):
+    def create(self, usuario: UsuarioCreateWithAtributos):
             try:
                 conn = get_db_connection()
+                conn.start_transaction()
                 cursor = conn.cursor()
 
                 # VALIDACIONES BÁSICAS
@@ -94,7 +95,19 @@ class UsuarioController:
 
                 cursor.execute(query, values)
                 conn.commit()
-                return {"resultado": "Usuario creado correctamente"}
+                
+                # Obtener el id del usuario recien creado
+                id_usuario = cursor.lastrowid
+                
+                for attr in usuario.atributos:
+                    sql_attr = """
+                        INSERT INTO usuarioatributo (id_usuario, id_atributo, valor, create_date)
+                        VALUES (%s, %s, %s, NOW())
+                    """
+                    cursor.execute(sql_attr, (id_usuario, attr.id_atributo, attr.valor))
+                        
+                conn.commit()       
+                return {"message": "Usuario y atributos creados correctamente", "id_usuario": id_usuario}
 
             except mysql.connector.Error as err:
                 conn.rollback()

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
 from datetime import date, datetime
+from models.usuarioatributo_model import UsuarioAtributoCreate
 
 class UsuarioBase(BaseModel):
     id_usuario: Optional[int] = None
@@ -33,3 +34,19 @@ class UsuarioUpdate(BaseModel):
     email: Optional[str] = None
     direccion: Optional[str] = None
     id_rol: Optional[int] = None
+    
+    
+class UsuarioCreateWithAtributos(BaseModel):
+    usuario: str
+    contrasena: str
+    nombre: str
+    apellido: str
+    tipo_documento: str
+    numero_documento: str
+    fecha_nacimiento: date
+    sexo: str
+    telefono: str
+    email: str
+    direccion: str
+    id_rol: int
+    atributos: List[UsuarioAtributoCreate]

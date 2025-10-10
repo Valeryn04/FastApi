@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from fastapi import Body
-from models.usuario_model import UsuarioBase, UsuarioUpdate
+from models.usuario_model import UsuarioBase, UsuarioUpdate, UsuarioCreateWithAtributos
 from controllers.usuario_controller import UsuarioController
 
 router = APIRouter()
@@ -20,7 +20,7 @@ async def get_usuario_by_id(usuario_id: int):
 
 # Crear usuario
 @router.post("/usuarios", response_model=dict)
-async def create_usuario(usuario: UsuarioBase):
+async def create_usuario(usuario: UsuarioCreateWithAtributos):
     rpta = usuario_controller.create(usuario)
     return rpta
 
