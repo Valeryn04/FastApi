@@ -2,7 +2,7 @@ import mysql.connector
 import re
 from fastapi import HTTPException
 from config.db_config import get_db_connection
-from models.usuario_model import UsuarioBase, UsuarioUpdate
+from models.usuario_model import UsuarioCreateWithAtributos, UsuarioUpdate
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 import bcrypt
@@ -39,71 +39,82 @@ class UsuarioController:
         finally:
             conn.close()
 
-    def create(self, usuario: UsuarioBase):
-            try:
-                conn = get_db_connection()
-                cursor = conn.cursor()
+    def create(self, usuario: UsuarioCreateWithAtributos):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor()
 
-                # VALIDACIONES BÁSICAS
-                if not usuario.usuario or usuario.usuario.strip() == "":
-                    raise HTTPException(status_code=400, detail="El nombre de usuario es obligatorio")
+            # VALIDACIONES BÁSICAS
+            if not usuario.usuario or usuario.usuario.strip() == "":
+                raise HTTPException(status_code=400, detail="El nombre de usuario es obligatorio")
 
-                if not usuario.contrasena or len(usuario.contrasena.strip()) < 8:
-                    raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 8 caracteres")
+            if not usuario.contrasena or len(usuario.contrasena.strip()) < 8:
+                raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 8 caracteres")
+            if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", usuario.contrasena):
+                raise HTTPException(status_code=400, detail="La contraseña debe incluir al menos un símbolo especial")
 
-                if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", usuario.contrasena):
-                    raise HTTPException(status_code=400, detail="La contraseña debe incluir al menos un símbolo especial")
+            if not usuario.email or usuario.email.strip() == "":
+                raise HTTPException(status_code=400, detail="El correo electrónico es obligatorio")
 
-                if not usuario.email or usuario.email.strip() == "":
-                    raise HTTPException(status_code=400, detail="El correo electrónico es obligatorio")
+            # VALIDAR DUPLICADOS
+            cursor.execute("SELECT COUNT(*) FROM usuarios WHERE usuario = %s", (usuario.usuario,))
+            if cursor.fetchone()[0] > 0:
+                raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
 
-                # VALIDAR DUPLICADOS
-                cursor.execute("SELECT COUNT(*) FROM usuarios WHERE usuario = %s", (usuario.usuario,))
-                if cursor.fetchone()[0] > 0:
-                    raise HTTPException(status_code=400, detail="El nombre de usuario ya está en uso")
+            cursor.execute("SELECT COUNT(*) FROM usuarios WHERE email = %s", (usuario.email,))
+            if cursor.fetchone()[0] > 0:
+                raise HTTPException(status_code=400, detail="El correo electrónico ya está registrado")
 
-                cursor.execute("SELECT COUNT(*) FROM usuarios WHERE email = %s", (usuario.email,))
-                if cursor.fetchone()[0] > 0:
-                    raise HTTPException(status_code=400, detail="El correo electrónico ya está registrado")
+            cursor.execute("SELECT COUNT(*) FROM usuarios WHERE numero_documento = %s", (usuario.numero_documento,))
+            if cursor.fetchone()[0] > 0:
+                raise HTTPException(status_code=400, detail="El número de documento ya está registrado")
 
-                cursor.execute("SELECT COUNT(*) FROM usuarios WHERE numero_documento = %s", (usuario.numero_documento,))
-                if cursor.fetchone()[0] > 0:
-                    raise HTTPException(status_code=400, detail="El número de documento ya está registrado")
+            # VALIDAR QUE EL ROL EXISTA
+            cursor.execute("SELECT COUNT(*) FROM roles WHERE id_rol = %s", (usuario.id_rol,))
+            if cursor.fetchone()[0] == 0:
+                raise HTTPException(status_code=400, detail="El rol asignado no existe")
 
-                # VALIDAR QUE EL ROL EXISTA
-                cursor.execute("SELECT COUNT(*) FROM roles WHERE id_rol = %s", (usuario.id_rol,))
-                if cursor.fetchone()[0] == 0:
-                    raise HTTPException(status_code=400, detail="El rol asignado no existe")
+            # Contraseña hasheada después de validar
+            hashed_password = bcrypt.hashpw(usuario.contrasena.encode('utf-8'), bcrypt.gensalt())
+            hashed_password = hashed_password.decode('utf-8')
 
-                #  Contraseña hasheada después de validar
-                hashed_password = bcrypt.hashpw(usuario.contrasena.encode('utf-8'), bcrypt.gensalt())
-                hashed_password = hashed_password.decode('utf-8')
+            query = """
+                INSERT INTO usuarios 
+                (usuario, contrasena, nombre, apellido, tipo_documento, numero_documento, 
+                fecha_nacimiento, sexo, telefono, email, direccion, id_rol, estado, create_date, update_date)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """
+            values = (
+                usuario.usuario, hashed_password, usuario.nombre, usuario.apellido,
+                usuario.tipo_documento, usuario.numero_documento, usuario.fecha_nacimiento,
+                usuario.sexo, usuario.telefono, usuario.email, usuario.direccion,
+                usuario.id_rol, True, datetime.now(), datetime.now()
+            )
 
-                query = """
-                    INSERT INTO usuarios 
-                    (usuario, contrasena, nombre, apellido, tipo_documento, numero_documento, 
-                    fecha_nacimiento, sexo, telefono, email, direccion, id_rol, estado, create_date, update_date)
-                    VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                """
-                values = (
-                    usuario.usuario, hashed_password, usuario.nombre, usuario.apellido,
-                    usuario.tipo_documento, usuario.numero_documento, usuario.fecha_nacimiento,
-                    usuario.sexo, usuario.telefono, usuario.email, usuario.direccion,
-                    usuario.id_rol, True, datetime.now(), datetime.now()
-                )
+            cursor.execute(query, values)
+            conn.commit()
 
-                cursor.execute(query, values)
-                conn.commit()
-                return {"resultado": "Usuario creado correctamente"}
+            # Obtener el id del usuario recién creado
+            id_usuario = cursor.lastrowid
 
-            except mysql.connector.Error as err:
-                conn.rollback()
-                raise HTTPException(status_code=500, detail=str(err))
+            # Insertar atributos asociados al usuario
+            if usuario.atributos:
+                for attr in usuario.atributos:
+                    sql_attr = """
+                        INSERT INTO usuarioatributo (id_usuario, id_atributo, valor, create_date)
+                        VALUES (%s, %s, %s, NOW())
+                    """
+                    cursor.execute(sql_attr, (id_usuario, attr.id_atributo, attr.valor))
 
-            finally:
-                conn.close()
+            conn.commit()
+            return {"message": "Usuario y atributos creados correctamente", "id_usuario": id_usuario}
 
+        except mysql.connector.Error as err:
+            conn.rollback()
+            raise HTTPException(status_code=500, detail=str(err))
 
+        finally:
+            conn.close()
 
     def update(self, id_usuario: int, usuario: UsuarioUpdate):
         try:
@@ -170,7 +181,6 @@ class UsuarioController:
         finally:
             conn.close()
 
-
     def cambiar_estado(self, id_usuario: int, estado: bool):
         try:
             conn = get_db_connection()
@@ -197,4 +207,3 @@ class UsuarioController:
             raise HTTPException(status_code=500, detail=str(err))
         finally:
             conn.close()
-

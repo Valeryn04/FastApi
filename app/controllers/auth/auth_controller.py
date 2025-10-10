@@ -21,7 +21,9 @@ def crear_token(data: dict):
 def login_usuario(datos):
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
+
     try:
+        # Buscar usuario por nombre (se asume que en la tabla usuarios está id_rol)
         cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (datos.usuario,))
         usuario = cursor.fetchone()
 
@@ -34,9 +36,10 @@ def login_usuario(datos):
         if not bcrypt.checkpw(datos.contrasena.encode('utf-8'), usuario["contrasena"].encode('utf-8')):
             raise HTTPException(status_code=401, detail="Contraseña incorrecta")
 
+        # Crear token con id_usuario y rol
         token_data = {
             "sub": str(usuario["id_usuario"]),
-            "rol": usuario["id_rol"]  # <-- Incluye el rol aquí
+            "rol": usuario["id_rol"]
         }
 
         access_token = crear_token(token_data)

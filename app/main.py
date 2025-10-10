@@ -5,6 +5,7 @@ from config.db_config import get_db_connection
 from routes.usuarios_routes import router as usuarios_router
 from routes.roles_routes import router as rol_router
 from routes.auth_routes import router as auth_router
+from routes.atributos_routes import router as atributos_router
 
 app = FastAPI(
     title="Clinica API - Test"
@@ -29,6 +30,8 @@ API_PREFIX = "/api"
 app.include_router(usuarios_router, tags=["A. Usuarios"], prefix=API_PREFIX)
 app.include_router(auth_router, tags=["B. Auth"], prefix=API_PREFIX)
 app.include_router(rol_router, tags=["C. Roles"], prefix=API_PREFIX)
+app.include_router(atributos_router, tags=["D. Atributos"], prefix=API_PREFIX)
+
 
 # Ruta de bienvenida
 @app.get(API_PREFIX + "/")
