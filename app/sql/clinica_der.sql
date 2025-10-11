@@ -52,30 +52,6 @@ INSERT INTO `atributo` (`id_atributo`, `nombre`, `descripcion`, `create_date`, `
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `modulorol`
---
-
-CREATE TABLE `modulorol` (
-  `id_modulo_rol` int(11) NOT NULL,
-  `id_rol` int(11) NOT NULL,
-  `id_modulo` int(11) NOT NULL,
-  `estado` tinyint(1) DEFAULT 1,
-  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
-  `update_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `modulorol`
---
-
-INSERT INTO `modulorol` (`id_modulo_rol`, `id_rol`, `id_modulo`, `estado`, `create_date`, `update_date`) VALUES
-(1, 1, 1, 1, '2025-10-08 19:22:26', '2025-10-08 19:22:26'),
-(2, 1, 2, 1, '2025-10-08 19:22:26', '2025-10-08 19:22:26'),
-(3, 2, 2, 1, '2025-10-08 19:22:45', '2025-10-08 19:22:45');
-
--- --------------------------------------------------------
-
---
 -- Estructura de tabla para la tabla `modulos`
 --
 
@@ -94,6 +70,28 @@ CREATE TABLE `modulos` (
 INSERT INTO `modulos` (`id_modulo`, `nombre_modulo`, `descripcion`, `create_date`, `update_date`) VALUES
 (1, 'Usuarios', 'Gestión de usuarios del sistema', '2025-10-08 19:20:42', '2025-10-08 19:20:42'),
 (2, 'Citas', 'Gestión de citas médicas', '2025-10-08 19:20:42', '2025-10-08 19:20:42');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `modulo_permisos`
+--
+
+CREATE TABLE `modulo_permisos` (
+  `id` int(11) NOT NULL,
+  `id_modulo_fk` int(11) NOT NULL,
+  `id_permiso_fk` int(11) NOT NULL,
+  `nombre_funcionalidad` varchar(100) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `modulo_permisos`
+--
+
+INSERT INTO `modulo_permisos` (`id`, `id_modulo_fk`, `id_permiso_fk`, `nombre_funcionalidad`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 'Crear Usuario', '2025-10-10 20:07:32', '2025-10-10 20:49:43');
 
 -- --------------------------------------------------------
 
@@ -145,25 +143,23 @@ INSERT INTO `roles` (`id_rol`, `nombre_rol`, `descripcion`, `create_date`, `upda
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `rol_permisos`
+-- Estructura de tabla para la tabla `rol_modulo_permisos`
 --
 
-CREATE TABLE `rol_permisos` (
-  `id_rol_permiso` int(11) NOT NULL,
-  `id_modulo_rol` int(11) NOT NULL,
-  `id_permiso` int(11) NOT NULL,
+CREATE TABLE `rol_modulo_permisos` (
+  `id` int(11) NOT NULL,
+  `id_rol_fk` int(11) NOT NULL,
+  `id_modulo_permiso_fk` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Volcado de datos para la tabla `rol_permisos`
+-- Volcado de datos para la tabla `rol_modulo_permisos`
 --
 
-INSERT INTO `rol_permisos` (`id_rol_permiso`, `id_modulo_rol`, `id_permiso`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, '2025-10-08 19:23:15', '2025-10-08 19:23:15'),
-(2, 2, 3, '2025-10-08 19:25:54', '2025-10-08 19:25:54'),
-(3, 3, 2, '2025-10-08 19:26:15', '2025-10-08 19:26:15');
+INSERT INTO `rol_modulo_permisos` (`id`, `id_rol_fk`, `id_modulo_permiso_fk`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, '2025-10-10 20:07:46', '2025-10-10 20:07:46');
 
 -- --------------------------------------------------------
 
@@ -237,16 +233,17 @@ ALTER TABLE `atributo`
 --
 -- Indices de la tabla `modulorol`
 --
-ALTER TABLE `modulorol`
-  ADD PRIMARY KEY (`id_modulo_rol`),
-  ADD KEY `idRol` (`id_rol`),
-  ADD KEY `idModulo` (`id_modulo`);
-
---
--- Indices de la tabla `modulos`
---
 ALTER TABLE `modulos`
   ADD PRIMARY KEY (`id_modulo`);
+
+
+--
+-- Indices de la tabla `modulo_permisos`
+--
+ALTER TABLE `modulo_permisos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_modulo_permiso` (`id_modulo_fk`,`id_permiso_fk`),
+  ADD KEY `id_permiso_fk` (`id_permiso_fk`);
 
 --
 -- Indices de la tabla `permisos`
@@ -261,12 +258,12 @@ ALTER TABLE `roles`
   ADD PRIMARY KEY (`id_rol`);
 
 --
--- Indices de la tabla `rol_permisos`
+-- Indices de la tabla `rol_modulo_permisos`
 --
-ALTER TABLE `rol_permisos`
-  ADD PRIMARY KEY (`id_rol_permiso`),
-  ADD UNIQUE KEY `unique_modulorol_permiso` (`id_modulo_rol`,`id_permiso`),
-  ADD KEY `fk_permiso` (`id_permiso`);
+ALTER TABLE `rol_modulo_permisos`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_rol_funcionalidad` (`id_rol_fk`,`id_modulo_permiso_fk`),
+  ADD KEY `id_modulo_permiso_fk` (`id_modulo_permiso_fk`);
 
 --
 -- Indices de la tabla `usuarioatributo`
@@ -297,16 +294,16 @@ ALTER TABLE `atributo`
   MODIFY `id_atributo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
--- AUTO_INCREMENT de la tabla `modulorol`
---
-ALTER TABLE `modulorol`
-  MODIFY `id_modulo_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
 -- AUTO_INCREMENT de la tabla `modulos`
 --
 ALTER TABLE `modulos`
   MODIFY `id_modulo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT de la tabla `modulo_permisos`
+--
+ALTER TABLE `modulo_permisos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `permisos`
@@ -321,10 +318,10 @@ ALTER TABLE `roles`
   MODIFY `id_rol` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT de la tabla `rol_permisos`
+-- AUTO_INCREMENT de la tabla `rol_modulo_permisos`
 --
-ALTER TABLE `rol_permisos`
-  MODIFY `id_rol_permiso` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+ALTER TABLE `rol_modulo_permisos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT de la tabla `usuarioatributo`
@@ -343,18 +340,18 @@ ALTER TABLE `usuarios`
 --
 
 --
--- Filtros para la tabla `modulorol`
+-- Filtros para la tabla `modulo_permisos`
 --
-ALTER TABLE `modulorol`
-  ADD CONSTRAINT `modulorol_ibfk_1` FOREIGN KEY (`id_rol`) REFERENCES `roles` (`id_rol`),
-  ADD CONSTRAINT `modulorol_ibfk_2` FOREIGN KEY (`id_modulo`) REFERENCES `modulos` (`id_modulo`);
+ALTER TABLE `modulo_permisos`
+  ADD CONSTRAINT `modulo_permisos_ibfk_1` FOREIGN KEY (`id_modulo_fk`) REFERENCES `modulos` (`id_modulo`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `modulo_permisos_ibfk_2` FOREIGN KEY (`id_permiso_fk`) REFERENCES `permisos` (`id_permiso`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
--- Filtros para la tabla `rol_permisos`
+-- Filtros para la tabla `rol_modulo_permisos`
 --
-ALTER TABLE `rol_permisos`
-  ADD CONSTRAINT `fk_modulorol` FOREIGN KEY (`id_modulo_rol`) REFERENCES `modulorol` (`id_modulo_rol`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_permiso` FOREIGN KEY (`id_permiso`) REFERENCES `permisos` (`id_permiso`) ON DELETE CASCADE;
+ALTER TABLE `rol_modulo_permisos`
+  ADD CONSTRAINT `rol_modulo_permisos_ibfk_1` FOREIGN KEY (`id_rol_fk`) REFERENCES `roles` (`id_rol`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `rol_modulo_permisos_ibfk_2` FOREIGN KEY (`id_modulo_permiso_fk`) REFERENCES `modulo_permisos` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Filtros para la tabla `usuarioatributo`

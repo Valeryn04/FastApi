@@ -12,7 +12,7 @@ class UsuarioAtributoController:
             result = cursor.fetchall()
             return result
         except mysql.connector.Error as err:
-            raise HTTPException(status_code=500, detail=str(err))
+            raise HTTPException(status_code=500, detail=f"Error MySQL: {err}")
         finally:
             if conn.is_connected():
                 cursor.close()
@@ -28,7 +28,42 @@ class UsuarioAtributoController:
                 raise HTTPException(status_code=404, detail="Relación Usuario-Atributo no encontrada")
             return result
         except mysql.connector.Error as err:
-            raise HTTPException(status_code=500, detail=str(err))
+            raise HTTPException(status_code=500, detail=f"Error MySQL: {err}")
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
+
+    # ✅ NUEVO MÉTODO - Obtener atributos por ID de usuario
+    def get_by_usuario(self, id_usuario: int):
+        """Obtiene todos los atributos de un usuario específico con información del atributo"""
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+            
+            # Query con JOIN para obtener información completa del atributo
+            query = """
+                SELECT 
+                    ua.id_usuario_atributo,
+                    ua.id_usuario,
+                    ua.id_atributo,
+                    ua.valor,
+                    a.nombre as nombre_atributo,
+                    a.descripcion as descripcion_atributo
+                FROM usuarioatributo ua
+                INNER JOIN atributo a ON ua.id_atributo = a.id_atributo
+                WHERE ua.id_usuario = %s
+                ORDER BY a.nombre
+            """
+            
+            cursor.execute(query, (id_usuario,))
+            result = cursor.fetchall()
+            
+            # Retornar array vacío si no hay atributos (no es error)
+            return result if result else []
+            
+        except mysql.connector.Error as err:
+            raise HTTPException(status_code=500, detail=f"Error MySQL: {err}")
         finally:
             if conn.is_connected():
                 cursor.close()
@@ -50,7 +85,7 @@ class UsuarioAtributoController:
             return {"id_usuario_atributo": cursor.lastrowid, **data}
         except mysql.connector.Error as err:
             conn.rollback()
-            raise HTTPException(status_code=500, detail=str(err))
+            raise HTTPException(status_code=500, detail=f"Error MySQL: {err}")
         finally:
             if conn.is_connected():
                 cursor.close()
@@ -70,12 +105,12 @@ class UsuarioAtributoController:
             conn.commit()
             
             if cursor.rowcount == 0:
-                 raise HTTPException(status_code=404, detail="Relación Usuario-Atributo no encontrada o datos sin cambios")
+                raise HTTPException(status_code=404, detail="Relación Usuario-Atributo no encontrada o datos sin cambios")
             
             return {"message": "Relación Usuario-Atributo actualizada correctamente"}
         except mysql.connector.Error as err:
             conn.rollback()
-            raise HTTPException(status_code=500, detail=str(err))
+            raise HTTPException(status_code=500, detail=f"Error MySQL: {err}")
         finally:
             if conn.is_connected():
                 cursor.close()
@@ -90,12 +125,12 @@ class UsuarioAtributoController:
             conn.commit()
 
             if cursor.rowcount == 0:
-                 raise HTTPException(status_code=404, detail="Relación Usuario-Atributo no encontrada")
+                raise HTTPException(status_code=404, detail="Relación Usuario-Atributo no encontrada")
 
             return {"message": "Relación Usuario-Atributo eliminada correctamente"}
         except mysql.connector.Error as err:
             conn.rollback()
-            raise HTTPException(status_code=500, detail=str(err))
+            raise HTTPException(status_code=500, detail=f"Error MySQL: {err}")
         finally:
             if conn.is_connected():
                 cursor.close()

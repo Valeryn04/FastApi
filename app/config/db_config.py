@@ -5,6 +5,6 @@ def get_db_connection():
         host="localhost",
         user="root",
         password="",
-        database="clinica_proyecto"
+        database="iub"
     )
 import mysql.connector

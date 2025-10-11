@@ -6,6 +6,8 @@ from routes.usuarios_routes import router as usuarios_router
 from routes.roles_routes import router as rol_router
 from routes.auth_routes import router as auth_router
 from routes.atributos_routes import router as atributos_router
+from routes.modulo_permisos_routes import router as moduloPermisos_router
+from routes.rol_modulos_permisos_routes import router as rol_modulos_permisos_router
 
 app = FastAPI(
     title="Clinica API - Test"
@@ -32,6 +34,7 @@ app.include_router(usuarios_router, tags=["A. Usuarios"], prefix=API_PREFIX)
 app.include_router(auth_router, tags=["B. Auth"], prefix=API_PREFIX)
 app.include_router(rol_router, tags=["C. Roles"], prefix=API_PREFIX)
 app.include_router(atributos_router, tags=["D. Atributos"], prefix=API_PREFIX)
+app.include_router(moduloPermisos_router, tags=["E. Modelo-Permisos"], prefix=API_PREFIX)
 
 # Ruta de bienvenida
 @app.get(API_PREFIX + "/")
