@@ -7,7 +7,9 @@ def get_db_connection():
         user=os.getenv("MYSQL_USER"),
         password=os.getenv("MYSQL_PASSWORD"),
         database=os.getenv("MYSQL_DATABASE"),
-        port=os.getenv("MYSQL_PORT", 3306)
+        port=int(os.getenv("MYSQL_PORT", 3306)),
+        charset='utf8mb4', 
+        collation='utf8mb4_unicode_ci'
     )
 import mysql.connector
 
