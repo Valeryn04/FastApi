@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+import os
 from app.config.db_config import get_db_connection
-
-
 from app.routes.usuarios_routes import router as usuarios_router
 from app.routes.roles_routes import router as rol_router
 from app.routes.auth_routes import router as auth_router
@@ -18,7 +18,6 @@ origins = [
     "http://localhost:8000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-
 ]
 
 app.add_middleware(
@@ -37,7 +36,17 @@ app.include_router(rol_router, tags=["C. Roles"], prefix=API_PREFIX)
 app.include_router(atributos_router, tags=["D. Atributos"], prefix=API_PREFIX)
 app.include_router(moduloPermisos_router, tags=["E. Modelo-Permisos"], prefix=API_PREFIX)
 
-# Ruta de bienvenida
-@app.get(API_PREFIX + "/")
+# Ruta raíz
+@app.get("/")
 def read_root():
     return {"message": "API de la Clínica funcionando en v1."}
+
+# Ruta para favicon.ico
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(os.path.join("static", "favicon.ico"))
+
+# Ruta con prefijo '/api'
+@app.get(API_PREFIX + "/")
+def read_api_root():
+    return {"message": "API de la Clínica funcionando en /api."}
