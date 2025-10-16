@@ -19,7 +19,8 @@ origins = [
     "http://localhost:8000",
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://fastapi-4-aqig.onrender.com"
+    "https://fastapi-4-aqig.onrender.com",
+    "https://proyecto3-azure.vercel.app"
 ]
 
 app.add_middleware(
@@ -37,6 +38,8 @@ app.include_router(auth_router, tags=["B. Auth"], prefix=API_PREFIX)
 app.include_router(rol_router, tags=["C. Roles"], prefix=API_PREFIX)
 app.include_router(atributos_router, tags=["D. Atributos"], prefix=API_PREFIX)
 app.include_router(moduloPermisos_router, tags=["E. Modelo-Permisos"], prefix=API_PREFIX)
+app.include_router(rol_modulos_permisos_router, tags=["F. Rol-Modulos-Permisos"], prefix=API_PREFIX)
+
 
 # Ruta raíz
 @app.get("/")
