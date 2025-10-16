@@ -40,8 +40,3 @@ app.include_router(moduloPermisos_router, tags=["E. Modelo-Permisos"], prefix=AP
 @app.get(API_PREFIX + "/")
 def read_root():
     return {"message": "API de la Clínica funcionando en v1."}
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
