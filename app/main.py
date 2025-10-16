@@ -47,6 +47,23 @@ def read_root():
 async def favicon():
     return FileResponse(os.path.join("static", "favicon.ico"))
 
+# Ruta de test para probar conexión a la BD
+@app.get("/api/test-db")
+def test_db_connection():
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT NOW();")  # comando simple para comprobar que responde
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return {"message": "✅ Conexión exitosa a la base de datos", "server_time": result[0]}
+    except mysql.connector.Error as err:
+        return {"message": "❌ Error al conectar a la base de datos", "error": str(err)}
+    except Exception as e:
+        return {"message": "⚠️ Error inesperado", "error": str(e)}
+
+
 # Ruta con prefijo '/api'
 @app.get(API_PREFIX + "/")
 def read_api_root():
