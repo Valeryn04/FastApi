@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, HTTPException
-from models.usuario_model import UsuarioBase, UsuarioUpdate, UsuarioCreateWithAtributos
-from controllers.usuario_controller import UsuarioController
-from controllers.usuarioatributo_controller import UsuarioAtributoController
+from app.models.usuario_model import UsuarioBase, UsuarioUpdate, UsuarioCreateWithAtributos
+from app.controllers.usuario_controller import UsuarioController
+from app.controllers.usuarioatributo_controller import UsuarioAtributoController
 from typing import Optional, List
 
 

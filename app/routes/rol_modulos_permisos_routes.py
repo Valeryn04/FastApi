@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from controllers.rol_modulo_permisos_controller import RolModuloPermisoController
-from models.rol_modulo_permisos import RolModuloPermisoBase
+from app.controllers.rol_modulo_permisos_controller import RolModuloPermisoController
+from app.models.rol_modulo_permisos import RolModuloPermisoBase
 from typing import Optional
 
 router = APIRouter(prefix="/rol-permisos")

@@ -1,7 +1,7 @@
 import mysql.connector
 from fastapi import HTTPException
-from config.db_config import get_db_connection
-from models.roles_model import RolBase
+from app.config.db_config import get_db_connection
+from app.models.roles_model import RolBase
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 

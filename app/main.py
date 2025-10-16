@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from config.db_config import get_db_connection
+from app.config.db_config import get_db_connection
 
-from routes.usuarios_routes import router as usuarios_router
-from routes.roles_routes import router as rol_router
-from routes.auth_routes import router as auth_router
-from routes.atributos_routes import router as atributos_router
-from routes.modulo_permisos_routes import router as moduloPermisos_router
-from routes.rol_modulos_permisos_routes import router as rol_modulos_permisos_router
+
+from app.routes.usuarios_routes import router as usuarios_router
+from app.routes.roles_routes import router as rol_router
+from app.routes.auth_routes import router as auth_router
+from app.routes.atributos_routes import router as atributos_router
+from app.routes.modulo_permisos_routes import router as moduloPermisos_router
+from app.routes.rol_modulos_permisos_routes import router as rol_modulos_permisos_router
 
 app = FastAPI(
     title="Clinica API - Test"

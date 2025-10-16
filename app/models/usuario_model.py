@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import date, datetime
-from models.usuarioatributo_model import UsuarioAtributoCreate
+from app.models.usuarioatributo_model import UsuarioAtributoCreate
 
 # --- NUEVO MODELO PARA ACTUALIZAR ATRIBUTOS ---
 class AtributoUpdate(BaseModel):

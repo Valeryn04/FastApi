@@ -1,8 +1,8 @@
 import mysql.connector
 import re
 from fastapi import HTTPException
-from config.db_config import get_db_connection
-from models.usuario_model import UsuarioCreateWithAtributos, UsuarioUpdate
+from app.config.db_config import get_db_connection
+from app.models.usuario_model import UsuarioCreateWithAtributos, UsuarioUpdate
 from datetime import datetime
 from fastapi.encoders import jsonable_encoder
 import bcrypt

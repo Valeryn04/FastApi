@@ -1,7 +1,7 @@
 # routes/auth_routes.py
 from fastapi import APIRouter
-from schemas.login import LoginRequest, LoginResponse
-from controllers.auth.auth_controller import login_usuario
+from app.schemas.login import LoginRequest, LoginResponse
+from app.controllers.auth.auth_controller import login_usuario
 
 router = APIRouter()
 

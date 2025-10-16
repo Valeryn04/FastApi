@@ -1,6 +1,6 @@
 from fastapi import APIRouter
-from controllers.modulo_permisos_controller import ModuloPermisoController
-from models.modulo_permisos_model import ModuloPermisoBase, ModuloPermisoUpdate
+from app.controllers.modulo_permisos_controller import ModuloPermisoController
+from app.models.modulo_permisos_model import ModuloPermisoBase, ModuloPermisoUpdate
 
 router = APIRouter(prefix="/modulos-permisos")
 controller = ModuloPermisoController()

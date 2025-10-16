@@ -3,7 +3,7 @@ from jose import jwt
 import bcrypt
 from fastapi import HTTPException
 
-from config.db_config import get_db_connection
+from app.config.db_config import get_db_connection
 
 # Configuración del JWT
 SECRET_KEY = "clave_super_secreta_cambiar"  # Usar variable de entorno luego

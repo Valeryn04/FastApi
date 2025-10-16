@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body
-from models.atributo_model import AtributoBase, AtributoUpdate
-from controllers.atributo_controller import AtributoController
+from app.models.atributo_model import AtributoBase, AtributoUpdate
+from app.controllers.atributo_controller import AtributoController
 
 
 router = APIRouter(prefix="/atributos")
