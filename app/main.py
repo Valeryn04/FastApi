@@ -40,7 +40,7 @@ app.include_router(moduloPermisos_router, tags=["E. Modelo-Permisos"], prefix=AP
 # Ruta raíz
 @app.get("/")
 def read_root():
-    return {"message": "API de la Clínica funcionando en v1 xdx."}
+    return {"message": "API de la Clínica funcionando en v1."}
 
 # Ruta para favicon.ico
 @app.get("/favicon.ico")
