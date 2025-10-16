@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 import os
+import mysql.connector
 from app.config.db_config import get_db_connection
 from app.routes.usuarios_routes import router as usuarios_router
 from app.routes.roles_routes import router as rol_router
