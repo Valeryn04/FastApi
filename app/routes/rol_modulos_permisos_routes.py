@@ -7,9 +7,22 @@ router = APIRouter(prefix="/rol-permisos")
 controller = RolModuloPermisoController()
 pk_id = "id_asignacion"
 
+
+# 🔹 Obtener todas las asignaciones
 @router.get("/")
 async def obtener_asignaciones():
     return controller.get_all()
+
+# 🔹 Obtener módulos y permisos por ID de rol (sin autenticación)
+@router.get("/modulos-usuario/{id_rol}", summary="Obtener módulos y permisos de un rol específico (sin token)")
+async def obtener_modulos_por_rol(id_rol: int):
+    """
+    Devuelve los módulos y funcionalidades asignadas al rol indicado por su ID.
+    Ideal para pruebas o consultas sin necesidad de JWT.
+    """
+    return controller.get_modulos_por_rol(id_rol)
+
+
 
 @router.get(f"/{{{pk_id}}}")
 async def obtener_asignacion_id(id_asignacion: int):

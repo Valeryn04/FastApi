@@ -159,3 +159,260 @@ class RolModuloPermisoController:
         finally:
             if conn.is_connected():
                 conn.close()
+                
+   # ----------------------------------------------------------------------
+    # MÉTODOS DE PERMISOS POR ROL (CORREGIDOS)
+    # ----------------------------------------------------------------------
+
+    def get_modulos_por_rol_simple(self, id_rol: int):
+        """
+        🔹 Devuelve los módulos asignados a un rol, incluyendo su icono y URL.
+        Ideal para construir el menú lateral (sidebar).
+        """
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            query = """
+                SELECT DISTINCT 
+                    m.id_modulo,
+                    m.nombre_modulo,
+                    m.url,
+                    m.icono
+                FROM rol_modulo_permisos rmp
+                JOIN modulo_permisos mp ON rmp.id_modulo_permiso_fk = mp.id
+                JOIN modulos m ON mp.id_modulo_fk = m.id_modulo
+                WHERE rmp.id_rol_fk = %s
+                ORDER BY m.nombre_modulo;
+            """
+            cursor.execute(query, (id_rol,))
+            data = cursor.fetchall()
+
+            if not data:
+                raise HTTPException(status_code=404, detail="El rol no tiene módulos asignados")
+
+            return {"resultado": data}
+
+        except mysql.connector.Error as err:
+            raise HTTPException(status_code=500, detail=f"Error de base de datos: {str(err)}")
+        finally:
+            if 'conn' in locals() and conn and conn.is_connected():
+                conn.close()
+
+    def get_modulos_por_rol(self, id_rol: int):
+        """
+        Devuelve los módulos y permisos asociados a un rol específico,
+        agrupados por módulo.
+        """
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            query = """
+                SELECT
+                    m.id_modulo,
+                    m.nombre_modulo,
+                    m.icono,
+                    m.url,
+                    mp.id AS id_modulo_permiso,
+                    mp.nombre_funcionalidad,
+                    p.nombre_permiso
+                FROM rol_modulo_permisos rmp
+                INNER JOIN modulo_permisos mp ON rmp.id_modulo_permiso_fk = mp.id
+                INNER JOIN permisos p ON mp.id_permiso_fk = p.id_permiso
+                INNER JOIN modulos m ON mp.id_modulo_fk = m.id_modulo
+                WHERE rmp.id_rol_fk = %s
+                ORDER BY m.nombre_modulo, mp.nombre_funcionalidad;
+            """
+            cursor.execute(query, (id_rol,))
+            data = cursor.fetchall()
+
+            if not data:
+                return {"resultado": [], "mensaje": "El rol no tiene módulos asignados o no existen relaciones activas."}
+
+            modulos = {}
+            for row in data:
+                id_modulo = row["id_modulo"]
+                if id_modulo not in modulos:
+                    modulos[id_modulo] = {
+                        "id_modulo": id_modulo,
+                        "nombre_modulo": row["nombre_modulo"],
+                        "icono": row["icono"],
+                        "url": row["url"],
+                        "funcionalidades": []
+                    }
+                modulos[id_modulo]["funcionalidades"].append({
+                    "id_modulo_permiso": row["id_modulo_permiso"],
+                    "nombre_funcionalidad": row["nombre_funcionalidad"],
+                    "permiso": row["nombre_permiso"]
+                })
+
+            return {"resultado": list(modulos.values())}
+
+        except mysql.connector.Error as err:
+            raise HTTPException(status_code=500, detail=f"Error de base de datos: {str(err)}")
+        finally:
+            if 'conn' in locals() and conn and conn.is_connected():
+                conn.close()
+                
+    def get_permisos_por_rol(id_rol: int):
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            # Consulta para obtener los permisos del rol
+            query = """
+                SELECT 
+                    m.nombre_modulo, 
+                    p.nombre_permiso
+                FROM rol_modulo_permisos rmp
+                INNER JOIN modulo_permisos mp ON rmp.id_modulo_permiso_fk = mp.id
+                INNER JOIN permisos p ON mp.id_permiso_fk = p.id_permiso
+                INNER JOIN modulos m ON mp.id_modulo_fk = m.id_modulo
+                WHERE rmp.id_rol_fk = %s
+            """
+            cursor.execute(query, (id_rol,))
+            data = cursor.fetchall()
+
+            # Verificamos si no hay permisos asignados
+            if not data:
+                return {"resultado": [], "mensaje": "Este rol no tiene permisos asignados."}
+
+            # Estructuramos los permisos por módulo
+            permisos = {}
+            for row in data:
+                modulo = row["nombre_modulo"]
+                if modulo not in permisos:
+                    permisos[modulo] = []
+                permisos[modulo].append(row["nombre_permiso"])
+
+            return {"resultado": permisos}
+
+        except mysql.connector.Error as err:
+            raise HTTPException(status_code=500, detail=f"Error en la base de datos: {str(err)}")
+        finally:
+            if 'conn' in locals() and conn and conn.is_connected():
+                conn.close()
+
+    def get_todos_modulos_con_permisos(self):
+        """
+        Devuelve TODOS los módulos disponibles con TODOS sus permisos.
+        """
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            query = """
+                SELECT
+                    m.id_modulo,
+                    m.nombre_modulo,
+                    p.id_permiso,
+                    p.nombre_permiso
+                FROM modulos m
+                CROSS JOIN permisos p
+                ORDER BY m.nombre_modulo, p.nombre_permiso
+            """
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+            if not data:
+                return {"resultado": []}
+
+            # Agrupar por módulo
+            modulos = {}
+            for row in data:
+                id_modulo = row["id_modulo"]
+                if id_modulo not in modulos:
+                    modulos[id_modulo] = {
+                        "id_modulo": id_modulo,
+                        "nombre_modulo": row["nombre_modulo"],
+                        "permisos": []
+                    }
+                modulos[id_modulo]["permisos"].append({
+                    "id_permiso": row["id_permiso"],
+                    "nombre_permiso": row["nombre_permiso"]
+                })
+
+            return {"resultado": list(modulos.values())}
+
+        except mysql.connector.Error as err:
+            raise HTTPException(status_code=500, detail=f"Error de base de datos: {str(err)}")
+        finally:
+            if 'conn' in locals() and conn and conn.is_connected():
+                conn.close()
+                
+                
+    def get_todos_modulos_con_permisos(self, id_rol: int):
+        """
+        Devuelve TODOS los módulos disponibles con TODOS sus permisos.
+        Marca si el rol tiene asignado ese módulo/permiso.
+        """
+        try:
+            conn = get_db_connection()
+            cursor = conn.cursor(dictionary=True)
+
+            # Consulta todos los módulos y permisos disponibles
+            query = """
+                SELECT
+                    m.id_modulo,
+                    m.nombre_modulo,
+                    p.id_permiso,
+                    p.nombre_permiso
+                FROM modulos m
+                CROSS JOIN permisos p
+                ORDER BY m.nombre_modulo, p.nombre_permiso
+            """
+            cursor.execute(query)
+            data = cursor.fetchall()
+
+            # Verificar si el rol tiene asignados estos permisos
+            query_rol_permisos = """
+                SELECT
+                    m.id_modulo,
+                    p.id_permiso
+                FROM rol_modulo_permisos rmp
+                INNER JOIN modulo_permisos mp ON rmp.id_modulo_permiso_fk = mp.id
+                INNER JOIN permisos p ON mp.id_permiso_fk = p.id_permiso
+                INNER JOIN modulos m ON mp.id_modulo_fk = m.id_modulo
+                WHERE rmp.id_rol_fk = %s
+            """
+            cursor.execute(query_rol_permisos, (id_rol,))
+            permisos_asignados = cursor.fetchall()
+
+            # Crear un set de tuplas para comprobar los permisos asignados al rol
+            permisos_asignados_set = set((permiso['id_modulo'], permiso['id_permiso']) for permiso in permisos_asignados)
+
+            if not data:
+                return {"resultado": []}
+
+            # Agrupar por módulo y agregar el estado de asignación para cada permiso
+            modulos = {}
+            for row in data:
+                id_modulo = row["id_modulo"]
+                id_permiso = row["id_permiso"]
+
+                if id_modulo not in modulos:
+                    modulos[id_modulo] = {
+                        "id_modulo": id_modulo,
+                        "nombre_modulo": row["nombre_modulo"],
+                        "icono": "bi bi-shield-lock",  # Puedes agregar iconos personalizados
+                        "url": f"/admin/{row['nombre_modulo'].lower()}",  # Generación de URL de ejemplo
+                        "permisos": []
+                    }
+
+                # Verificar si el rol tiene este permiso
+                tiene_permiso = (id_modulo, id_permiso) in permisos_asignados_set
+
+                modulos[id_modulo]["permisos"].append({
+                    "id_permiso": id_permiso,
+                    "nombre_permiso": row["nombre_permiso"],
+                    "tiene_permiso": tiene_permiso  # Marca si tiene el permiso
+                })
+
+            return {"resultado": list(modulos.values())}
+
+        except mysql.connector.Error as err:
+            raise HTTPException(status_code=500, detail=f"Error de base de datos: {str(err)}")
+        finally:
+            if 'conn' in locals() and conn and conn.is_connected():
+                conn.close()
