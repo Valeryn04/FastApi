@@ -273,7 +273,7 @@ CREATE TABLE `usuarios` (
 INSERT INTO `usuarios` (`id_usuario`, `usuario`, `contrasena`, `nombre`, `apellido`, `tipo_documento`, `numero_documento`, `fecha_nacimiento`, `sexo`, `telefono`, `email`, `estado`, `direccion`, `id_rol`, `create_date`, `update_date`) VALUES
 (1, 'Asistente1', '$2b$12$isUbfdj0Ckc/CjWLzm8Ci.ztMDgEHcKGbU0tRPCpsHXguoiXi1Z5C', 'Asistente 1', 'Asistente', 'CC', '1001920351', '1993-02-18', 'M', '300356214', 'Asistente@gmail.com', 1, 'TV 52#37-95', 2, '2025-10-15 19:37:54', '2025-10-16 04:20:03'),
 (2, 'admin2', '$2b$12$k96gTbgvNDolzni96k.G7eqd7c.Txn6bl6u6CPfxPCepFCUSb3wwK', 'Admin 2', 'Prueba', 'CC', '10567890122', '2000-05-12', 'M', '3004567890', 'prueba@example.com', 0, 'Cra 45 #67-12', 1, '2025-10-15 19:37:54', '2025-10-16 04:20:11'),
-(3, 'admin', '$2b$12$h5MpkTn7zHNLYFUjlw7lcuaTkdd6gvWBn2sBh/BmEqLCoIFWTijw2', 'Administrador', 'Principal', 'CC', '1000000001', '1990-01-01', 'M', '3000000000', 'admin@sistema.com', 1, 'Oficina Central', 1, '2025-10-15 19:37:54', '2025-10-16 03:58:36'),
+(3, 'admin', '$2b$12$7c4uNavoWLf3wWHj5LmxKOIEQVHRQmPYdnNrnlku7SH8VzHvg0Rii', 'Administrador', 'Principal', 'CC', '1000000001', '1990-01-01', 'M', '3000000000', 'admin@sistema.com', 1, 'Oficina Central', 1, '2025-10-15 19:37:54', '2025-10-16 03:58:36'),
 (4, 'superadmin', '$2b$12$q3UpR5vOVi3vxn8XJSRrze1qjRMVnm.jZfS/UWghoMCS4SLPg98zm', 'Super', 'admin', 'CC', '1234567890', '1990-05-12', 'M', '3005557777', 'juan.perez@example.com', 1, 'Calle 45 #12-30', 5, '2025-10-15 19:37:54', '2025-10-16 04:25:59'),
 (13, 'admin3', '$2b$12$X9wxgxFj/C2pQZKLIpcIle9UPsW21q11ZCr042tsOeOg4vDA7Wdiy', 'admin3', 'admin3', 'CC', '1061551666', '2000-05-04', 'M', '3008276522', 'admin3@gmail.com', 1, 'xsjjdhddn', 2, '2025-10-15 22:37:59', '2025-10-16 04:21:08');
 
